@@ -1,5 +1,3 @@
-'use strict';
-
 // Selecting elements
 const player0El = document.querySelector('.player--0');
 const player1El = document.querySelector('.player--1');
@@ -49,21 +47,33 @@ btnRoll.addEventListener('click', function () {
     // 1. Generating a random dice roll
     const dice = Math.trunc(Math.random() * 6) + 1;
 
-    // 2. Display dice
-    diceEl.classList.remove('hidden');
-    diceEl.src = `dice-${dice}.png`;
+    // 2. Display rolling dice animation
+    let roll = 1;
+    const rollDice = setInterval(function () {
+      diceEl.src = `dice-${roll}.png`;
+      roll++;
+      if (roll > 6) {
+        roll = 1;
+      }
+    }, 100);
 
-    // 3. Check for rolled 1
-    if (dice !== 1) {
-      // Add dice to current score
-      currentScore += dice;
-      document.getElementById(
-        `current--${activePlayer}`
-      ).textContent = currentScore;
-    } else {
-      // Switch to next player
-      switchPlayer();
-    }
+    // 3. Stop rolling dice animation after 1 second
+    setTimeout(function () {
+      clearInterval(rollDice);
+      diceEl.src = `dice-${dice}.png`;
+
+      // 4. Check for rolled 1
+      if (dice !== 1) {
+        // Add dice to current score
+        currentScore += dice;
+        document.getElementById(
+          `current--${activePlayer}`
+        ).textContent = currentScore;
+      } else {
+        // Switch to next player
+        switchPlayer();
+      }
+    }, 1000);
   }
 });
 
@@ -96,3 +106,41 @@ btnHold.addEventListener('click', function () {
 });
 
 btnNew.addEventListener('click', init);
+
+// Dice rolling animation
+const diceContainer = document.getElementById('dice-container');
+const diceImages = [];
+
+for (let i = 1; i <= 6; i++) {
+  const diceImage = document.createElement('img');
+  diceImage.src = `images/dice-${i}.png`;
+  diceImage.alt = `Dice ${i}`;
+  diceImage.classList.add('dice');
+  diceContainer.appendChild(diceImage);
+  diceImages.push(diceImage);
+}
+
+let currentDice = 1;
+let rolling = false;
+
+function rollDice() {
+  if (!rolling) {
+    rolling = true;
+    const intervalId = setInterval(() => {
+      currentDice++;
+      if (currentDice > 6) {
+        currentDice = 1;
+      }
+      diceImages.forEach((image) => {
+        image.src = `images/dice-${currentDice}.png`;
+      });
+    }, 100);
+
+    setTimeout(() => {
+      clearInterval(intervalId);
+      rolling = false;
+    }, 1000);
+  }
+}
+
+diceContainer.addEventListener('click', rollDice);
